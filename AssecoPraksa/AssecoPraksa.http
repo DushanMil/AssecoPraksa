@@ -1,0 +1,6 @@
+@AssecoPraksa_HostAddress = http://localhost:5078
+
+GET {{AssecoPraksa_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
