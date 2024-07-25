@@ -24,6 +24,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 
+// get the current implementation of AutoMapper and add it to the application scope
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
 // sta ce nam ovo
@@ -40,13 +41,15 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 // DBContext registration
-builder.Services.AddDbContext<AssecoPraksa.Database.TransactionDbContext>(opt =>
+builder.Services.AddDbContext<TransactionDbContext>(opt =>
 {
     opt.UseNpgsql(CreateConnectionString(builder.Configuration));
 });
 
 
 var app = builder.Build();
+
+
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

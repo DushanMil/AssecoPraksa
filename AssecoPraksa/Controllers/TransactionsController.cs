@@ -35,14 +35,10 @@ namespace AssecoPraksa.Controllers
             // TODO
             return Ok();
         }
-
-
-
-        // Helper function for parsing a csv file
         
 
         [HttpPost("import")]
-        public async Task<IActionResult> ImportTransactionsAsync([FromBody] IFormFile csvFile)
+        public async Task<IActionResult> ImportTransactionsAsync(IFormFile csvFile)
         {
             // u req body se nalazi csv fajl 
             if (csvFile == null || csvFile.Length == 0)
@@ -52,7 +48,8 @@ namespace AssecoPraksa.Controllers
                 return BadRequest("No file uploaded!");
             }
 
-            // ne znam sta ce mi povratna vrednost ovoga ali dobro
+            // _logger.LogInformation("Evo me u controlleru");
+
             var value = await _transactionService.importTransactionsFromCSV(csvFile);
 
             return Ok("File uploaded and data saved.");
