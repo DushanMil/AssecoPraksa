@@ -45,12 +45,19 @@ namespace AssecoPraksa.Controllers
             {
                 // treba da se vrati odgovor tipa validation problem sa detaljima
                 // TODO
-                return BadRequest("No file uploaded!");
+                var problem = new ValidationProblem();
+                problem.Errors.Add(new ValidationProblem.ProblemDetails(csvFile != null ? csvFile.FileName : "", "invalid-format", "CSV fajl nije poslat ili je duzine 0"));
+                return BadRequest(problem);
             }
 
             // _logger.LogInformation("Evo me u controlleru");
 
             var value = await _transactionService.importTransactionsFromCSV(csvFile);
+
+            if (value == false)
+            {
+                return BadRequest("ERROR: Wrong CSV header format!");
+            }
 
             return Ok("File uploaded and data saved.");
         }

@@ -8,6 +8,7 @@ namespace AssecoPraksa.Mappings
     {
         public AutoMapperProfile() 
         {
+            CreateMap<String, DateTime>().ConvertUsing<StringToDateTimeConverter>();
             // vrsi se mapiranje od CreateTransactionCommand u TransactionEntity
             // ne treba nam mapiranje membera jer se svi parametri isto zovu
             CreateMap<CreateTransactionCommand, TransactionEntity>();

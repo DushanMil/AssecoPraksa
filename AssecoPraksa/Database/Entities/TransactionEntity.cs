@@ -10,7 +10,7 @@ namespace AssecoPraksa.Database.Entities
         [Column("beneficiary-name")]
         public string? BeneficiaryName  { get; set; }
         [Required]
-        public string Date { get; set; } = null!;
+        public DateTime Date { get; set; }
         [Required]
         public Direction Direction { get; set; }
         [Required]
