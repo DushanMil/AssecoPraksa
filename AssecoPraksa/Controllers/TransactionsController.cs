@@ -1,7 +1,10 @@
-﻿using AssecoPraksa.Models;
+﻿using System.Globalization;
+using System;
+using AssecoPraksa.Models;
 using AssecoPraksa.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using System.Runtime.Intrinsics.Arm;
 
 namespace AssecoPraksa.Controllers
 {
@@ -32,8 +35,67 @@ namespace AssecoPraksa.Controllers
         {
             // all parameters either have a default value or can be null
             // response should be transaction-paged-list
-            // TODO
-            return Ok();
+
+            string[] formats = { "M/d/yyyy", "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy" };
+
+            DateTime startDateTime;
+            if (!string.IsNullOrEmpty(startDate) && !DateTime.TryParseExact(startDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out startDateTime))
+            {
+                var problem = new ValidationProblem();
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("start-date", "invalid-format", "Bad start-date format"));
+                return BadRequest(problem);
+            }
+
+            DateTime endDateTime;
+            if (!string.IsNullOrEmpty(endDate) && !DateTime.TryParseExact(endDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out endDateTime))
+            {
+                var problem = new ValidationProblem();
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("end-date", "invalid-format", "Bad end-date format"));
+                return BadRequest(problem);
+            }
+
+            string[] valid_kinds = {"dep", "wdw", "pmt", "fee", "inc", "rev", "adj", "lnd", "lnr", "fcx", "aop","acl", "spl", "sal"};
+
+            // check if transaction kind is a valid code
+            if (!string.IsNullOrEmpty(transactionKind) && !valid_kinds.Contains(transactionKind))
+            {
+                var problem = new ValidationProblem();
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("transaction-kind", "unknown-enum", "Not a valid transaction kind"));
+                return BadRequest(problem);
+            } 
+
+            TransactionPagedList<TransactionWithSplits> transactions;
+
+            if (!string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                // both strings are not null and valid
+                transactions = await _transactionService.getTransactionsAsync(page, pageSize, sortOrder, sortBy, 
+                    DateTime.ParseExact(startDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None).ToUniversalTime(), DateTime.ParseExact(endDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None).ToUniversalTime(), transactionKind);
+
+            }
+            else if (!string.IsNullOrEmpty(startDate) && string.IsNullOrEmpty(endDate))
+            {
+                // start date is not null and valid
+                // end date is null
+                transactions = await _transactionService.getTransactionsAsync(page, pageSize, sortOrder, sortBy,
+                    DateTime.ParseExact(startDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None).ToUniversalTime(), DateTime.Now.ToUniversalTime(), transactionKind);
+            }
+            else if (string.IsNullOrEmpty(startDate) && !string.IsNullOrEmpty(endDate))
+            {
+                // start date is null
+                // end date is not null
+                transactions = await _transactionService.getTransactionsAsync(page, pageSize, sortOrder, sortBy,
+                    DateTime.MinValue.ToUniversalTime(), DateTime.ParseExact(endDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None).ToUniversalTime(), transactionKind);
+            }
+            else
+            {
+                // both fields are null or empty
+                transactions = await _transactionService.getTransactionsAsync(page, pageSize, sortOrder, sortBy,
+                    null, null, transactionKind);
+
+            }
+
+            return Ok(transactions);
         }
         
 

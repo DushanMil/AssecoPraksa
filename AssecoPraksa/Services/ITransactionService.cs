@@ -1,7 +1,12 @@
-﻿namespace AssecoPraksa.Services
+﻿using AssecoPraksa.Models;
+
+namespace AssecoPraksa.Services
 {
     public interface ITransactionService
     {
-        Task<bool> importTransactionsFromCSV(IFormFile csvFile);
+        public Task<TransactionPagedList<TransactionWithSplits>> getTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? start = null, DateTime? end = null, string? transactionKind = null);
+
+
+        public Task<bool> importTransactionsFromCSV(IFormFile csvFile);
     }
 }

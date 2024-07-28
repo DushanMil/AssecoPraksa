@@ -29,6 +29,12 @@ namespace AssecoPraksa.Services
             _logger = logger;
         }
 
+        public async Task<TransactionPagedList<TransactionWithSplits>> getTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? start = null, DateTime? end = null, string? transactionKind = null)
+        {
+            var transactions = await _repository.GetTransactionsAsync(page, pageSize, sortOrder, sortBy, start, end, transactionKind);
+            return _mapper.Map<TransactionPagedList<TransactionWithSplits>>(transactions);
+        }
+
         public async Task<bool> importTransactionsFromCSV(IFormFile csvFile)
         {
             try
@@ -113,51 +119,6 @@ namespace AssecoPraksa.Services
                             // TODO: Add more info about the skipped row
                             _logger.LogInformation("SKIPPED: Bad conversion." + e.Message);
                         }
-
-
-                        /*
-                        csv.Context.RegisterClassMap<TransactionMap>();
-                        var records = csv.GetRecords<CreateTransactionCommand>();
-
-                        // save to database
-                        foreach (var record in records)
-                        {
-                            // check if transaction is valid
-                            bool valid = true;
-
-                            // valid DateTime formats
-                            string[] formats = { "M/d/yyyy", "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy" };
-
-                            // 
-                            DateTime dateTime;
-                            if (!DateTime.TryParseExact(record.Date, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out dateTime))
-                            {
-                                _logger.LogInformation("SKIPPED: Invalid date format. Transaction with ID = " + record.Id + " and beneficiary-name = " + record.BeneficiaryName);
-                                valid = false;
-                            }
-                            else if (record.Direction != Direction.c || record.Direction != Direction.d)
-                            {
-                                _logger.LogInformation("SKIPPED: Invalid direction. Transaction with ID = " + record.Id + " and beneficiary-name = " + record.BeneficiaryName);
-                                valid = false;
-                            }
-
-
-
-                            if (valid)
-                            {
-                                var newRecordEntity = _mapper.Map<TransactionEntity>(record);
-                                try
-                                {
-                                    await _repository.CreateTransaction(newRecordEntity);
-                                }
-                                catch (DbUpdateException e2)
-                                {
-                                    _logger.LogInformation("DB Error: Transaction with ID = " + record.Id + " and beneficiary-name = " + record.BeneficiaryName);
-                                }
-                            }
-                        }
-
-                        */
                     }
 
                     return true;
