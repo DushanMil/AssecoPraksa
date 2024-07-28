@@ -3,6 +3,7 @@ using AssecoPraksa.Commands;
 using AssecoPraksa.Database.Entities;
 using AssecoPraksa.Database.Repositories;
 using AssecoPraksa.Mappings;
+using AssecoPraksa.Models;
 using AutoMapper;
 using CsvHelper;
 using CsvHelper.TypeConversion;
@@ -24,6 +25,12 @@ namespace AssecoPraksa.Services
             _logger = logger;
         }
 
+
+        public async Task<CategoryList<Category>> getCategoryList(string? parentCode)
+        {
+            var categories =  await _repository.GetCategories(parentCode);
+            return _mapper.Map<CategoryList<Category>>(categories);
+        }
 
         public async Task<bool> importCategoriesFromCSV(IFormFile csvFile)
         {

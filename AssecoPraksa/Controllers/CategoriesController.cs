@@ -44,9 +44,14 @@ namespace AssecoPraksa.Controllers
         public async Task<IActionResult> GetCategoriesAsync(
             [FromQuery(Name = "parent-id")] string? parentId = null)
         {
-            // vraca categories list, koji kao elemente ima kategoriju
-            // TODO
-            return Ok();
+            // get categories with set parentId
+            // if parentId not set get categories with parentId = null
+            // no need to check if parentId is valid
+            Console.WriteLine(parentId);
+
+            var categories = await _categoryService.getCategoryList(parentId);
+
+            return Ok(categories);
         }
 
 

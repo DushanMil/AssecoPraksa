@@ -1,4 +1,5 @@
 ﻿using AssecoPraksa.Database.Entities;
+using AssecoPraksa.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AssecoPraksa.Database.Repositories
@@ -24,7 +25,6 @@ namespace AssecoPraksa.Database.Repositories
             await _dbContext.SaveChangesAsync();
 
             return newCategoryEntity;
-
         }
 
         public async Task<CategoryEntity> UpdateCategory(CategoryEntity newCategoryEntity)
@@ -39,6 +39,31 @@ namespace AssecoPraksa.Database.Repositories
             }
 
             return newCategoryEntity;
+        }
+
+
+        public async Task<CategoryList<CategoryEntity>> GetCategories(string? parentCode)
+        {
+            var query = _dbContext.Categories.AsQueryable();
+            Console.WriteLine(parentCode);
+            if (!string.IsNullOrEmpty(parentCode))
+            {
+                Console.WriteLine(parentCode);
+                query = query.Where(category => parentCode.Equals(category.ParentCode));
+            }
+            else
+            {
+                query = query.Where(category => string.IsNullOrEmpty(category.ParentCode));
+            }
+
+            query = query.OrderBy(x => x.Code);
+
+            var categories = await query.ToListAsync();
+
+            return new CategoryList<CategoryEntity>
+            {
+                Items = categories
+            };
         }
     }
 }
