@@ -1,4 +1,5 @@
 ﻿using AssecoPraksa.Models;
+using AssecoPraksa.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,15 +10,34 @@ namespace AssecoPraksa.Controllers
     [Route("categories")]
     public class CategoriesController : Controller
     {
-        [HttpPost("import")]
-        public async Task<IActionResult> ImportCategoriesAsync([FromBody] CategoryCSV categoryCSV)
-        {
-            // u telu se nalazi jedna kategorija
-            // pitaj kako se unosi vise kategorija kada je ovde poslata samo jedna
-            // takodje da li se unose kategorije iz CSV fajla ili ove iz body dela zahteva
+        ICategoryService _categoryService;
 
-            
-            return Ok();
+        public CategoriesController(ICategoryService categoryService)
+        {
+            _categoryService = categoryService;
+        }
+
+        [HttpPost("import")]
+        public async Task<IActionResult> ImportCategoriesAsync(IFormFile csvFile)
+        {
+            // unos kategorija iz csv fajla
+            if (csvFile == null || csvFile.Length == 0)
+            {
+                // treba da se vrati odgovor tipa validation problem sa detaljima
+                // TODO
+                var problem = new ValidationProblem();
+                problem.Errors.Add(new ValidationProblem.ProblemDetails(csvFile != null ? csvFile.FileName : "", "invalid-format", "CSV fajl nije poslat ili je duzine 0"));
+                return BadRequest(problem);
+            }
+
+            var value = await _categoryService.importCategoriesFromCSV(csvFile);
+
+            if (value == false)
+            {
+                return BadRequest("ERROR: Wrong CSV header format!");
+            }
+
+            return Ok("File uploaded and data saved.");
         }
 
         [HttpGet]

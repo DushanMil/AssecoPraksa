@@ -21,6 +21,8 @@ namespace AssecoPraksa.Mappings
 
             CreateMap<TransactionPagedList<TransactionEntity>, TransactionPagedList<TransactionWithSplits>>();
 
+            CreateMap<CreateCategoryCommand, CategoryEntity>();
+
         }
     }
 }

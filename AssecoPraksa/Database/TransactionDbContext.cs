@@ -10,10 +10,12 @@ namespace AssecoPraksa.Database
         public TransactionDbContext(DbContextOptions options) : base(options) { }
 
         public DbSet<TransactionEntity> Transactions { get; set; }
+        public DbSet<CategoryEntity> Categories { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.ApplyConfiguration(new TransactionEntityTypeConfiguration());
+            modelBuilder.ApplyConfiguration(new CategoryEntityTypeConfiguration());
             base.OnModelCreating(modelBuilder);
         }
 
