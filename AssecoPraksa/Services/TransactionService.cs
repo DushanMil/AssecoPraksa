@@ -12,6 +12,7 @@ using AssecoPraksa.Mappings;
 using Microsoft.EntityFrameworkCore;
 using CsvHelper.TypeConversion;
 using ISO._4217;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace AssecoPraksa.Services
 {
@@ -31,6 +32,22 @@ namespace AssecoPraksa.Services
             _mapper = mapper;
             _logger = logger;
             _transactionSplitRepository = transactionSplitRepository;
+        }
+
+
+        public async Task<SpendingsByCategory?> GetSpendingsByCategory(string? catcode = null, DateTime? start = null, DateTime? end = null, Direction? direction = null)
+        {
+            // check if transaction code is a valid code, only if catcode in not null or ""
+            if (!string.IsNullOrEmpty(catcode))
+            {
+                var category = await _categoryRepository.GetCategoryByCode(catcode);
+                if (category == null)
+                {
+                    return null;
+                }
+            }
+
+            return await _repository.GetSpendingsByCategory(catcode, start, end, direction);
         }
 
         public async Task<TransactionPagedList<TransactionWithSplits>> getTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? start = null, DateTime? end = null, string? transactionKind = null)

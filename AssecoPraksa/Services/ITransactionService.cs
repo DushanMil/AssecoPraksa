@@ -12,5 +12,7 @@ namespace AssecoPraksa.Services
         public Task<int> CategorizeTransactionAsync(int transactionId, TransactionCategorizeCommand command);
 
         public Task<int> SplitTransactionAsync(int transactionId, SplitTransactionCommand command);
+
+        public Task<SpendingsByCategory?> GetSpendingsByCategory(string? catcode = null, DateTime? start = null, DateTime? end = null, Direction? Direction = null);
     }
 }

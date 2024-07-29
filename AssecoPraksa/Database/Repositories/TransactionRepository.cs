@@ -3,6 +3,7 @@ using AssecoPraksa.Models;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.Arm;
+using static AssecoPraksa.Models.SpendingsByCategory;
 
 namespace AssecoPraksa.Database.Repositories
 {
@@ -147,6 +148,46 @@ namespace AssecoPraksa.Database.Repositories
             };
         }
 
+        public async Task<SpendingsByCategory> GetSpendingsByCategory(string? catcode = null, DateTime? startDate = null, DateTime? endDate = null, Direction? direction = null)
+        {
+            var query = _dbContext.Transactions.AsQueryable();
+
+
+            // filter query by date
+            // startDate and endDate either are both null or both are valid dates
+            if (startDate != null && endDate != null)
+            {
+                query = query.Where(transaction => transaction.Date >= startDate && transaction.Date <= endDate);
+            }
+
+            // filter by direction
+            if (direction != null)
+            {
+                query = query.Where(transaction => transaction.Direction == direction);
+            }
+
+            // filter by catcode
+            if (!string.IsNullOrEmpty(catcode))
+            {
+                query = query.Where(transaction => transaction.Catcode == catcode);
+            }
+
+
+
+            var spending = query.GroupBy(transaction => transaction.Catcode).Select(group => new SpendingInCategory
+            (
+                group.Key,
+                group.Sum(transaction => transaction.Amount),
+                group.Count()
+            )).ToList();
+
+            var retval = new SpendingsByCategory();
+            retval.Groups = spending;
+
+            return retval;
+        }
+
+
 
         // dodavanje instrukcija
         public async Task<TransactionEntity> CreateTransaction(TransactionEntity newTransactionEntity)
@@ -156,6 +197,7 @@ namespace AssecoPraksa.Database.Repositories
 
             return newTransactionEntity;
         }
+        // postavljanje kategorije instrukcije
         public async Task<TransactionEntity> SetTransactionCategory(TransactionEntity transaction, string catcode)
         {
             transaction.Catcode = catcode;
