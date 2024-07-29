@@ -13,5 +13,6 @@ namespace AssecoPraksa.Database.Entities
         public string? Name { get; set; }
 
         public virtual ICollection<TransactionEntity>? Transactions { get; set; }
+        public virtual ICollection<TransactionSplitEntity>? TransactionSplits { get; set; }
     }
 }

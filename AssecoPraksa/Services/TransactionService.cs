@@ -21,14 +21,16 @@ namespace AssecoPraksa.Services
         ITransactionRepository _repository;
         IMapper _mapper;
         ICategoryRepository _categoryRepository;
+        ITransactionSplitRepository _transactionSplitRepository;
         private readonly ILogger<TransactionService> _logger;
 
-        public TransactionService(ILogger<TransactionService> logger, ITransactionRepository repostitory, ICategoryRepository categoryRepository, IMapper mapper)
+        public TransactionService(ILogger<TransactionService> logger, ITransactionRepository repostitory, ICategoryRepository categoryRepository, ITransactionSplitRepository transactionSplitRepository, IMapper mapper)
         {
             _repository = repostitory;
             _categoryRepository = categoryRepository;
             _mapper = mapper;
             _logger = logger;
+            _transactionSplitRepository = transactionSplitRepository;
         }
 
         public async Task<TransactionPagedList<TransactionWithSplits>> getTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? start = null, DateTime? end = null, string? transactionKind = null)
@@ -153,6 +155,54 @@ namespace AssecoPraksa.Services
 
             // if all is okay return 0
             var value = await _repository.SetTransactionCategory(transaction, command.Catcode);
+
+            return 0;
+        }
+
+        public async Task<int> SplitTransactionAsync(int transactionId, SplitTransactionCommand command)
+        {
+
+            // check if catcodes are valid
+            int retval = 0;
+
+            foreach ( var split in command.Splits)
+            {
+                var category = await _categoryRepository.GetCategoryByCode(split.Catcode);
+                if (category == null)
+                {
+                    retval = 1;
+                }
+            }
+
+            if (retval == 1)
+            {
+                return retval;
+            }
+            
+
+            // check if transactionId exists in the database
+            var transaction = await _repository.GetTransactionById(transactionId);
+            if (transaction == null)
+            {
+                return 2;
+            }
+
+            // check if sum is valid
+            double sum = 0;
+
+            command.Splits.ForEach(split =>
+            {
+                sum += split.Amount;
+            });
+
+            if (sum != transaction.Amount)
+            {
+                return 3;
+            }
+
+            // if all is okay return 0
+            var value = await _transactionSplitRepository.SplitTransaction(transaction, command);
+
 
             return 0;
         }

@@ -25,6 +25,7 @@ builder.Services.AddScoped<ITransactionService, TransactionService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 builder.Services.AddScoped<ITransactionRepository, TransactionRepository>();
 builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<ITransactionSplitRepository, TransactionSplitRepository>();
 
 // get the current implementation of AutoMapper and add it to the application scope
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());

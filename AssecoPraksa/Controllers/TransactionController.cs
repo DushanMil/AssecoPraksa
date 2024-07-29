@@ -24,12 +24,46 @@ namespace AssecoPraksa.Controllers
 
         // transaction/{transactionId}/split
         [HttpPost("{transactionId}/split")]
-        public async Task<IActionResult> SplitTransactionAsync([FromRoute] string transactionId)
+        public async Task<IActionResult> SplitTransactionAsync([FromRoute] string transactionId, [FromBody] SplitTransactionCommand command)
         {
-            // ovo treba da ima neki asinhroni poziv
-            // u telu zahteva postoji splits - na koje delove treba podeliti transakciju
-            // split-transaction-command, from body, own model, TODO
-            // TODO
+            int number;
+            if (transactionId == null || string.IsNullOrEmpty(transactionId) || !int.TryParse(transactionId, out number))
+            {
+                // validation problem
+                var problem = new ValidationProblem();
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("transactionId", "required", "Transaction id invalid id"));
+                return BadRequest(problem);
+            }
+
+
+            var value = await _transactionService.SplitTransactionAsync(number, command);
+            if (value == 0)
+            {
+                return Ok("OK - Transaction splitted");
+            }
+            else if (value == 1)
+            {
+                // business problem - category code is not a valid code
+                return StatusCode(440, new BusinessProblem("m", "Invalid category code", "Some category code is invalid"));
+
+            }
+            else if (value == 2)
+            {
+                // business problem - transactionId is not a valid id
+                return StatusCode(440, new BusinessProblem("l", "Transaction id doesn't exist", "Transaction with id = " + transactionId + " doesn't exist"));
+            }
+            else if (value == 3)
+            {
+                // business problem - sum of transaction splits amounts doesn't equal to the transaction amount
+                return StatusCode(440, new BusinessProblem("j", "Wrong splits amounts", "Sum of transaction splits amounts doesn't equal to the amount of the transaction"));
+            }
+            else
+            {
+                // idk
+                return BadRequest("unknown problem");
+            }
+
+
             return Ok();
         }
 
