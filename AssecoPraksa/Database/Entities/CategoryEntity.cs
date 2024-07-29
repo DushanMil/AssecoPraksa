@@ -11,5 +11,7 @@ namespace AssecoPraksa.Database.Entities
         public string? ParentCode { get; set; }
         [Column("name")]
         public string? Name { get; set; }
+
+        public virtual ICollection<TransactionEntity>? Transactions { get; set; }
     }
 }

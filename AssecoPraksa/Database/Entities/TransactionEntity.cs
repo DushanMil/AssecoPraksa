@@ -25,6 +25,6 @@ namespace AssecoPraksa.Database.Entities
         public TransactionKind TransactionKind { get; set; }
         public string? Catcode { get; set; }
 
-
+        public CategoryEntity? Category { get; set; }
     }
 }

@@ -21,6 +21,8 @@ namespace AssecoPraksa.Database.Configurations
             builder.Property(x => x.Mcc).HasMaxLength(4);
             builder.Property(x => x.TransactionKind).IsRequired().HasConversion<String>();
             builder.Property(x => x.Catcode);
+
+            builder.HasOne(t => t.Category).WithMany(c => c.Transactions).HasForeignKey(t => t.Catcode);
         }
     }
 }
