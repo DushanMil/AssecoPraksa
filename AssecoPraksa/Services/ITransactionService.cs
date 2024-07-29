@@ -8,5 +8,7 @@ namespace AssecoPraksa.Services
 
 
         public Task<bool> importTransactionsFromCSV(IFormFile csvFile);
+
+        public Task<int> CategorizeTransactionAsync(int transactionId, TransactionCategorizeCommand command);
     }
 }

@@ -13,7 +13,7 @@ namespace AssecoPraksa.Database.Repositories
             _dbContext = dbContext;
         }
 
-        public async Task<CategoryEntity> GetCategoryByCode(string code)
+        public async Task<CategoryEntity?> GetCategoryByCode(string code)
         {
             return await _dbContext.Categories.FirstOrDefaultAsync(x => x.Code.Equals(code));
 

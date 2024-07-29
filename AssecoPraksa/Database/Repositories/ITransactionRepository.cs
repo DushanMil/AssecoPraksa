@@ -7,5 +7,9 @@ namespace AssecoPraksa.Database.Repositories
     {
         public Task<TransactionPagedList<TransactionEntity>> GetTransactionsAsync(int page = 1, int pageSize = 10, SortOrder sortOrder = SortOrder.Asc, string? sortBy = null, DateTime? startDate = null, DateTime? endDate = null, string? transactionKind = null);
         public Task<TransactionEntity> CreateTransaction(TransactionEntity newTransactionEntity);
+
+        public Task<TransactionEntity?> GetTransactionById(int transactionId);
+
+        public Task<TransactionEntity> SetTransactionCategory(TransactionEntity transaction, string catcode);
     }
 }

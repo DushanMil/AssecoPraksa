@@ -20,11 +20,13 @@ namespace AssecoPraksa.Services
     {
         ITransactionRepository _repository;
         IMapper _mapper;
+        ICategoryRepository _categoryRepository;
         private readonly ILogger<TransactionService> _logger;
 
-        public TransactionService(ILogger<TransactionService> logger, ITransactionRepository repostitory, IMapper mapper)
+        public TransactionService(ILogger<TransactionService> logger, ITransactionRepository repostitory, ICategoryRepository categoryRepository, IMapper mapper)
         {
             _repository = repostitory;
+            _categoryRepository = categoryRepository;
             _mapper = mapper;
             _logger = logger;
         }
@@ -130,6 +132,29 @@ namespace AssecoPraksa.Services
                 _logger.LogError("ERROR: Wrong format of CSV header file!");
                 return false;
             }
+        }
+
+
+        public async Task<int> CategorizeTransactionAsync(int transactionId, TransactionCategorizeCommand command)
+        {
+            // check if transactionId exists in the database
+            var transaction = await _repository.GetTransactionById(transactionId);
+            if (transaction == null)
+            {
+                return 2;
+            }
+
+            // check if catcode is valid catcode
+            var category = await _categoryRepository.GetCategoryByCode(command.Catcode);
+            if (category == null)
+            {
+                return 1;
+            }
+
+            // if all is okay return 0
+            var value = await _repository.SetTransactionCategory(transaction, command.Catcode);
+
+            return 0;
         }
     }
 }

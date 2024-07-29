@@ -15,6 +15,11 @@ namespace AssecoPraksa.Database.Repositories
             _dbContext = dbContext;
         }
 
+        public async Task<TransactionEntity?> GetTransactionById(int transactionId)
+        {
+            return await _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id.Equals(transactionId));
+        }
+
         public async Task<TransactionPagedList<TransactionEntity>> GetTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? startDate, DateTime? endDate, string? transactionKind)
         {
             var query = _dbContext.Transactions.AsQueryable();
@@ -150,6 +155,13 @@ namespace AssecoPraksa.Database.Repositories
             await _dbContext.SaveChangesAsync();
 
             return newTransactionEntity;
+        }
+        public async Task<TransactionEntity> SetTransactionCategory(TransactionEntity transaction, string catcode)
+        {
+            transaction.Catcode = catcode;
+            await _dbContext.SaveChangesAsync();
+
+            return transaction;
         }
     }
 }
