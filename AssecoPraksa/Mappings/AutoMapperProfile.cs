@@ -30,6 +30,7 @@ namespace AssecoPraksa.Mappings
 
             CreateMap<CategoryList<CategoryEntity>, CategoryList<Category>>();
 
+            CreateMap<TransactionSplitEntity, SplitTransactionCommand.SingleCategorySplit>();
 
         }
     }

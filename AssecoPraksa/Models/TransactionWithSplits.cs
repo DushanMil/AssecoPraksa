@@ -26,11 +26,11 @@ namespace AssecoPraksa.Models
         [Required]
         public TransactionKind TransactionKind { get; set; }
         public string? Catcode { get; set; }
-        public List<TransactionWithSplits> Splits { get; set; }
+        public List<SplitTransactionCommand.SingleCategorySplit> Splits { get; set; }
 
         public TransactionWithSplits()
         {
-            Splits = new List<TransactionWithSplits>();
+            Splits = new List<SplitTransactionCommand.SingleCategorySplit>();
         }
 
     }

@@ -8,5 +8,7 @@ namespace AssecoPraksa.Database.Repositories
         public Task<bool> DeleteTransactionSplit(TransactionEntity entity);
         public Task<TransactionSplitEntity> CreateTransactionSplit(TransactionSplitEntity newTransactionSplitEntity);
         public Task<TransactionEntity> SplitTransaction(TransactionEntity toSplitTransaction, SplitTransactionCommand command);
+
+        public Task<List<TransactionSplitEntity>> GetTransactionSplits(int transactionId);
     }
 }

@@ -49,6 +49,17 @@ namespace AssecoPraksa.Database.Repositories
             return toSplitTransaction;
         }
 
+        public async Task<List<TransactionSplitEntity>> GetTransactionSplits(int transactionId)
+        {
+            var query = _dbContext.TransactionSplits.AsQueryable();
+
+            query = query.Where(transactionSplit => transactionSplit.TransactionId == transactionId);
+
+            var splits = query.ToList();
+
+            return splits;
+        }
+
 
     }
 }

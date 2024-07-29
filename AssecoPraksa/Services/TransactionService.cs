@@ -36,7 +36,17 @@ namespace AssecoPraksa.Services
         public async Task<TransactionPagedList<TransactionWithSplits>> getTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? start = null, DateTime? end = null, string? transactionKind = null)
         {
             var transactions = await _repository.GetTransactionsAsync(page, pageSize, sortOrder, sortBy, start, end, transactionKind);
-            return _mapper.Map<TransactionPagedList<TransactionWithSplits>>(transactions);
+            var transactionsWithSplits = _mapper.Map<TransactionPagedList<TransactionWithSplits>>(transactions);
+
+            foreach ( TransactionWithSplits transaction in transactionsWithSplits.Items)
+            {
+                // dohvatanje splitova iz tabele za svaku transakciju
+                // nije najsrecnije ali sa sad
+                var splits = await _transactionSplitRepository.GetTransactionSplits(int.Parse(transaction.Id));
+                transaction.Splits = _mapper.Map<List<SplitTransactionCommand.SingleCategorySplit>>(splits);
+            }
+
+            return transactionsWithSplits;
         }
 
         public async Task<bool> importTransactionsFromCSV(IFormFile csvFile)
