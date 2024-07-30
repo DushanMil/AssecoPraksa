@@ -1,4 +1,5 @@
 using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using AssecoPraksa.Database;
 using AssecoPraksa.Database.Repositories;
@@ -30,13 +31,13 @@ builder.Services.AddScoped<ITransactionSplitRepository, TransactionSplitReposito
 // get the current implementation of AutoMapper and add it to the application scope
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 
-// sta ce nam ovo
 builder.Services.AddControllers().AddJsonOptions(options =>
 {
     options.JsonSerializerOptions.Converters.Add(
-        new JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.CamelCase)
+        new JsonStringEnumConverter(System.Text.Json.JsonNamingPolicy.KebabCaseLower)
         );
     // options.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull;
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.KebabCaseLower;
 });
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

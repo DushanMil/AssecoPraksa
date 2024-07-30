@@ -4,6 +4,8 @@ using System.Data;
 using Microsoft.EntityFrameworkCore;
 using System.Runtime.Intrinsics.Arm;
 using static AssecoPraksa.Models.SpendingsByCategory;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+using System.Globalization;
 
 namespace AssecoPraksa.Database.Repositories
 {
@@ -149,13 +151,11 @@ namespace AssecoPraksa.Database.Repositories
             query = query.Skip((page - 1) * pageSize).Take(pageSize);
 
             var transactions = await query.ToListAsync();
-
-            // TODO: treba procitati i splitove transakcija
             
 
             return new TransactionPagedList<TransactionEntity>
             {
-                TotalCount = transactions.Count(),
+                TotalCount = totalCount,
                 PageSize = pageSize,
                 Page = page,
                 TotalPages = (transactions.Count() + pageSize - 1) / pageSize,
@@ -165,9 +165,29 @@ namespace AssecoPraksa.Database.Repositories
             };
         }
 
+        private async Task<List<int>> GetSplittedTransactionIds()
+        {
+            var querySplitted = _dbContext.TransactionSplits.AsQueryable();
+
+            var splittedTransactions = await querySplitted.ToListAsync();
+
+            List<int> splittedTransactionsIds = new List<int>();
+
+            foreach (var split in splittedTransactions)
+            {
+                if (!splittedTransactionsIds.Contains(split.TransactionId))
+                {
+                    splittedTransactionsIds.Add(split.TransactionId);
+                }
+            }
+
+            return splittedTransactionsIds;
+        }
+
         public async Task<SpendingsByCategory> GetSpendingsByCategory(string? catcode = null, DateTime? startDate = null, DateTime? endDate = null, Direction? direction = null)
         {
-            var query = _dbContext.Transactions.AsQueryable();
+            // query for transactions left join categories
+            var query = _dbContext.Transactions.Include(transaction => transaction.Category).AsQueryable();
 
 
             // filter query by date
@@ -183,23 +203,108 @@ namespace AssecoPraksa.Database.Repositories
                 query = query.Where(transaction => transaction.Direction == direction);
             }
 
-            // filter by catcode
+            // if catcode is null then return grouping by top level category
+            // if catcode is top level then return grouping by lower level category
+            // if catcode is lower level category return grouping by low level category(doesn't exist)
             if (!string.IsNullOrEmpty(catcode))
             {
-                query = query.Where(transaction => transaction.Catcode == catcode);
+                // category is not null and valid. We need transactions which have a parent code equal to the parameter
+                query = query.Where(transaction => (transaction.Category != null && transaction.Category.ParentCode == catcode) || (transaction.Category != null && transaction.Category.Code == catcode));
+            }
+            else
+            {
+                // category parameter is null or "". We need transactions which have parent code null
+                query = query.Where(transaction => transaction.Category == null || string.IsNullOrEmpty( transaction.Category.ParentCode));
             }
 
+            // we have to exclude transactions which have splits
 
+            var splittedTransactionsIds = await GetSplittedTransactionIds();
 
-            var spending = query.GroupBy(transaction => transaction.Catcode).Select(group => new SpendingInCategory
+            query = query.Where(transaction => !splittedTransactionsIds.Contains(transaction.Id));
+
+            // now we can perform the query
+            // we group by transaction categoryCode
+
+            var spending = await query.GroupBy(transaction => transaction.Catcode).Select(group => new SpendingInCategory
             (
                 group.Key,
                 group.Sum(transaction => transaction.Amount),
                 group.Count()
-            )).ToList();
+            )).ToListAsync();
 
-            var retval = new SpendingsByCategory();
-            retval.Groups = spending;
+            foreach (var split in spending)
+            {
+                Console.WriteLine(split.Catcode + " " + split.Amount + " " + split.Number);
+            }
+
+
+            // we have to perform a similar query for table of splitted transactions
+            // we include the original transaction of the transaction split and the category of the transaction split
+            var querySplitTransactions = _dbContext.TransactionSplits.Include(split => split.Category).Include(split => split.Transaction).AsQueryable();
+
+            if (startDate != null && endDate != null)
+            {
+                querySplitTransactions = querySplitTransactions.Where(split => split.Transaction.Date >= startDate && split.Transaction.Date <= endDate);
+            }
+
+            // filter by direction
+            if (direction != null)
+            {
+                querySplitTransactions = querySplitTransactions.Where(split => split.Transaction.Direction == direction);
+            }
+
+            // if catcode is null then return grouping by top level category
+            // if catcode is top level then return grouping by lower level category
+            // if catcode is lower level category return grouping by low level category(doesn't exist)
+            if (!string.IsNullOrEmpty(catcode))
+            {
+                // category is not null and valid. We need transactions which have a parent code equal to the parameter
+                // and transactions where code is catcode
+                querySplitTransactions = querySplitTransactions.Where(split => (split.Category != null && split.Category.ParentCode == catcode) || (split.Category != null && split.Category.Code == catcode));
+            }
+            else
+            {
+                // category parameter is null or "". We need transactions which have parent code null
+                querySplitTransactions = querySplitTransactions.Where(split => split.Category == null || string.IsNullOrEmpty(split.Category.ParentCode));
+            }
+
+            var spendingSplits = await querySplitTransactions.GroupBy(split => split.Catcode).Select(group => new SpendingInCategory
+            (
+                group.Key,
+                group.Sum(transaction => transaction.Amount),
+                group.Count()
+            )).ToListAsync();
+
+            
+
+            // these two lists need to be combined
+            // go over the splits list and check if a same category name exists in the category lists
+            foreach(var categorySplit in spendingSplits)
+            {
+                bool found = false;
+
+                foreach (var category in spending)
+                {
+                    if (category.Catcode == categorySplit.Catcode)
+                    {
+                        category.Amount += categorySplit.Amount;
+                        category.Number += categorySplit.Number;
+                        found = true;
+                    }
+                }
+
+                if (!found)
+                {
+                    spending.Add(categorySplit);
+                }
+            }
+
+
+            var retval = new SpendingsByCategory
+            {
+                Groups = spending
+            };
 
             return retval;
         }

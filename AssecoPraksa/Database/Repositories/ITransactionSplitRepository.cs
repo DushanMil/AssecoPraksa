@@ -10,5 +10,7 @@ namespace AssecoPraksa.Database.Repositories
         public Task<TransactionEntity> SplitTransaction(TransactionEntity toSplitTransaction, SplitTransactionCommand command);
 
         public Task<List<TransactionSplitEntity>> GetTransactionSplits(int transactionId);
+
+
     }
 }

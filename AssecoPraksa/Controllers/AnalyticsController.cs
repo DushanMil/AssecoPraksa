@@ -15,12 +15,14 @@ namespace AssecoPraksa.Controllers
     public class AnalyticsController : Controller
     {
         ITransactionService _transactionService;
+        ICategoryService _categoryService;
         private readonly ILogger<TransactionsController> _logger;
 
-        public AnalyticsController(ILogger<TransactionsController> logger, ITransactionService productService)
+        public AnalyticsController(ILogger<TransactionsController> logger, ITransactionService productService, ICategoryService categoryService)
         {
             _logger = logger;
             _transactionService = productService;
+            _categoryService = categoryService;
         }
 
         
@@ -31,9 +33,10 @@ namespace AssecoPraksa.Controllers
             [FromQuery(Name = "end-date")] string? endDate = null,
             [FromQuery] Direction? direction = null)
         {
-            // check if catcode is valid is done in the TransactionService
 
             // API controller checks if the direction is valid
+
+            var problem = new ValidationProblem();
 
             // check if dates have a valid format
             string[] formats = { "M/d/yyyy", "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy" };
@@ -41,16 +44,24 @@ namespace AssecoPraksa.Controllers
             DateTime startDateTime;
             if (!string.IsNullOrEmpty(startDate) && !DateTime.TryParseExact(startDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out startDateTime))
             {
-                var problem = new ValidationProblem();
                 problem.Errors.Add(new ValidationProblem.ProblemDetails("start-date", "invalid-format", "Bad start-date format"));
-                return BadRequest(problem);
             }
 
             DateTime endDateTime;
             if (!string.IsNullOrEmpty(endDate) && !DateTime.TryParseExact(endDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out endDateTime))
             {
-                var problem = new ValidationProblem();
                 problem.Errors.Add(new ValidationProblem.ProblemDetails("end-date", "invalid-format", "Bad end-date format"));
+            }
+
+            // check if catcode is a valid code
+            var category = await _categoryService.GetCategoryByCode(catcode);
+            if (category == null)
+            {
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("catcode", "provided-category-does-not-exists", "Category code " + catcode + " does not exist"));
+            }
+
+            if (problem.Errors.Count > 0)
+            {
                 return BadRequest(problem);
             }
 
@@ -90,11 +101,13 @@ namespace AssecoPraksa.Controllers
 
             }
 
+            /*
             if (spendings == null)
             {
-                // business problem - category code is not a valid code
-                return StatusCode(440, new BusinessProblem("m", "Category code doesn't exist", "Code " + catcode + " doesn't exist"));
+                // business problem - catcode parameter was not a root category
+                return StatusCode(440, new BusinessProblem("provided-category-is-not-top-level", "Category code isn't top level", "Code " + catcode + " isn't top level"));
             }
+            */
 
             return Ok(spendings);
         }

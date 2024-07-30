@@ -26,12 +26,24 @@ namespace AssecoPraksa.Controllers
         [HttpPost("{transactionId}/split")]
         public async Task<IActionResult> SplitTransactionAsync([FromRoute] string transactionId, [FromBody] SplitTransactionCommand command)
         {
+            var problem = new ValidationProblem();
+
             int number;
             if (transactionId == null || string.IsNullOrEmpty(transactionId) || !int.TryParse(transactionId, out number))
             {
                 // validation problem
-                var problem = new ValidationProblem();
                 problem.Errors.Add(new ValidationProblem.ProblemDetails("transactionId", "required", "Transaction id invalid id"));
+                return BadRequest(problem);
+            }
+
+            if (command == null)
+            {
+                // validation problem
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("transaction-categorize-command", "required", "Missing category code"));
+            }
+
+            if (problem.Errors.Count > 0)
+            {
                 return BadRequest(problem);
             }
 
@@ -44,50 +56,54 @@ namespace AssecoPraksa.Controllers
             else if (value == 1)
             {
                 // business problem - category code is not a valid code
-                return StatusCode(440, new BusinessProblem("m", "Invalid category code", "Some category code is invalid"));
+                return StatusCode(440, new BusinessProblem("provided-category-does-not-exists", "Category code doesn't exist", "Some category code is invalid"));
 
             }
             else if (value == 2)
             {
                 // business problem - transactionId is not a valid id
-                return StatusCode(440, new BusinessProblem("l", "Transaction id doesn't exist", "Transaction with id = " + transactionId + " doesn't exist"));
+                return StatusCode(440, new BusinessProblem("transaction-does-not-exists", "Transaction id doesn't exist", "Transaction with id = " + transactionId + " doesn't exist"));
             }
             else if (value == 3)
             {
                 // business problem - sum of transaction splits amounts doesn't equal to the transaction amount
-                return StatusCode(440, new BusinessProblem("j", "Wrong splits amounts", "Sum of transaction splits amounts doesn't equal to the amount of the transaction"));
+                return StatusCode(440, new BusinessProblem("split-amount-over-transaction-amount", "Wrong splits amounts", "Sum of transaction splits amounts doesn't equal to the amount of the transaction"));
             }
             else
             {
-                // idk
+                // unknown error
                 return BadRequest("unknown problem");
             }
 
-
-            return Ok();
         }
 
         // transaction/{transactionId}/categorize
         [HttpPost("{transactionId}/categorize")]
         public async Task<IActionResult> CategorizeTransactionAsync([FromRoute] string transactionId, [FromBody] TransactionCategorizeCommand command)
         {
-            int number;
+            var problem = new ValidationProblem();
+
+            int number = 0;
             if (transactionId == null || string.IsNullOrEmpty(transactionId) || !int.TryParse(transactionId, out number))
             {
                 // validation problem
-                var problem = new ValidationProblem();
-                problem.Errors.Add(new ValidationProblem.ProblemDetails("transactionId", "required", "Transaction id invalid id"));
-                return BadRequest(problem);
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("transaction-id", "required", "Transaction id invalid id"));
+                
             }
 
             if (command == null || string.IsNullOrEmpty(command.Catcode))
             {
                 // validation problem
-                var problem = new ValidationProblem();
                 problem.Errors.Add(new ValidationProblem.ProblemDetails("transaction-categorize-command", "required", "Missing category code"));
+            }
+
+            if (problem.Errors.Count > 0)
+            {
                 return BadRequest(problem);
             }
 
+            
+            // this is okay because only one business problem can be returned
             var value = await _transactionService.CategorizeTransactionAsync(number, command);
             if (value == 0)
             {
@@ -96,17 +112,17 @@ namespace AssecoPraksa.Controllers
             else if (value == 1)
             {
                 // business problem - category code is not a valid code
-                return StatusCode(440, new BusinessProblem("m", "Category code doesn't exist", "Code " + command.Catcode + " doesn't exist"));
+                return StatusCode(440, new BusinessProblem("provided-category-does-not-exists", "Category code doesn't exist", "Code " + command.Catcode + " doesn't exists"));
 
             }
             else if (value == 2)
             {
                 // business problem - transactionId is not a valid id
-                return StatusCode(440, new BusinessProblem("l", "Transaction id doesn't exist", "Transaction with id = " + transactionId + " doesn't exist"));
+                return StatusCode(440, new BusinessProblem("transaction-does-not-exists", "Transaction id doesn't exist", "Transaction with id = " + transactionId + " doesn't exist"));
             }
             else
             {
-                // idk
+                // unknown error
                 return BadRequest("unknown problem");
             }
 

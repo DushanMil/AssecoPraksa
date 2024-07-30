@@ -1,5 +1,6 @@
 ﻿using AssecoPraksa.Database.Entities;
 using AssecoPraksa.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AssecoPraksa.Database.Repositories
 {
@@ -59,7 +60,6 @@ namespace AssecoPraksa.Database.Repositories
 
             return splits;
         }
-
 
     }
 }

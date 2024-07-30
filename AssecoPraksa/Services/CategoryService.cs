@@ -25,9 +25,25 @@ namespace AssecoPraksa.Services
             _logger = logger;
         }
 
-
-        public async Task<CategoryList<Category>> getCategoryList(string? parentCode)
+        public async Task<Category?> GetCategoryByCode(string code)
         {
+            var category = await _repository.GetCategoryByCode(code);
+            return _mapper.Map<Category>(category);
+        }
+
+
+        public async Task<CategoryList<Category>?> getCategoryList(string? parentCode)
+        {
+            // if parent code is set check if it is a valid parent code
+            if (!string.IsNullOrEmpty(parentCode))
+            {
+                var category = await _repository.GetCategoryByCode(parentCode);
+                if (category == null)
+                {
+                    return null;
+                }
+            }
+
             var categories =  await _repository.GetCategories(parentCode);
             return _mapper.Map<CategoryList<Category>>(categories);
         }

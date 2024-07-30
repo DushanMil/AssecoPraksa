@@ -16,7 +16,6 @@ namespace AssecoPraksa.Database.Repositories
         public async Task<CategoryEntity?> GetCategoryByCode(string code)
         {
             return await _dbContext.Categories.FirstOrDefaultAsync(x => x.Code.Equals(code));
-
         }
 
         public async Task<CategoryEntity> CreateCategory(CategoryEntity newCategoryEntity)
@@ -45,10 +44,8 @@ namespace AssecoPraksa.Database.Repositories
         public async Task<CategoryList<CategoryEntity>> GetCategories(string? parentCode)
         {
             var query = _dbContext.Categories.AsQueryable();
-            Console.WriteLine(parentCode);
             if (!string.IsNullOrEmpty(parentCode))
             {
-                Console.WriteLine(parentCode);
                 query = query.Where(category => parentCode.Equals(category.ParentCode));
             }
             else

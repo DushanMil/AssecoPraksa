@@ -38,12 +38,17 @@ namespace AssecoPraksa.Controllers
 
             var problem = new ValidationProblem();
 
+            // set a limit to page size
+            if (pageSize > 1000)
+            {
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("page-size", "out-of-range", "Page size can't be greater than 1000"));
+            }
+
             string[] formats = { "M/d/yyyy", "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy" };
 
             DateTime startDateTime;
             if (!string.IsNullOrEmpty(startDate) && !DateTime.TryParseExact(startDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out startDateTime))
             {
-                
                 problem.Errors.Add(new ValidationProblem.ProblemDetails("start-date", "invalid-format", "Bad start-date format"));
             }
 
