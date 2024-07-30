@@ -11,6 +11,7 @@ namespace AssecoPraksa.Controllers
     [EnableCors("MyCORSPolicy")]
     [ApiController]
     [Route("spending-analytics")]
+    
     public class AnalyticsController : Controller
     {
         ITransactionService _transactionService;
@@ -22,7 +23,7 @@ namespace AssecoPraksa.Controllers
             _transactionService = productService;
         }
 
-
+        
         [HttpGet]
         public async Task<IActionResult> GetSpendingAnalyticsAsync(
             [FromQuery] string? catcode = null,

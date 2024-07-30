@@ -36,31 +36,41 @@ namespace AssecoPraksa.Controllers
             // all parameters either have a default value or can be null
             // response should be transaction-paged-list
 
+            var problem = new ValidationProblem();
+
             string[] formats = { "M/d/yyyy", "MM/dd/yyyy", "M/dd/yyyy", "MM/d/yyyy" };
 
             DateTime startDateTime;
             if (!string.IsNullOrEmpty(startDate) && !DateTime.TryParseExact(startDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out startDateTime))
             {
-                var problem = new ValidationProblem();
+                
                 problem.Errors.Add(new ValidationProblem.ProblemDetails("start-date", "invalid-format", "Bad start-date format"));
-                return BadRequest(problem);
             }
 
             DateTime endDateTime;
             if (!string.IsNullOrEmpty(endDate) && !DateTime.TryParseExact(endDate, formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out endDateTime))
             {
-                var problem = new ValidationProblem();
                 problem.Errors.Add(new ValidationProblem.ProblemDetails("end-date", "invalid-format", "Bad end-date format"));
-                return BadRequest(problem);
             }
 
             string[] valid_kinds = {"dep", "wdw", "pmt", "fee", "inc", "rev", "adj", "lnd", "lnr", "fcx", "aop","acl", "spl", "sal"};
 
             // check if transaction kind is a valid code
-            if (!string.IsNullOrEmpty(transactionKind) && !valid_kinds.Contains(transactionKind))
+            if (!string.IsNullOrEmpty(transactionKind))
             {
-                var problem = new ValidationProblem();
-                problem.Errors.Add(new ValidationProblem.ProblemDetails("transaction-kind", "unknown-enum", "Not a valid transaction kind"));
+                // transactionKind is an array with ',' delimiter 
+                string[] kinds = transactionKind.Split(',');
+                foreach (string kind in kinds)
+                {
+                    if (!valid_kinds.Contains(kind))
+                    {
+                        problem.Errors.Add(new ValidationProblem.ProblemDetails("transaction-kind", "unknown-enum", kind + " is not a valid transaction kind"));
+                    }
+                }
+            } 
+
+            if (problem.Errors.Count() > 0)
+            {
                 return BadRequest(problem);
             } 
 

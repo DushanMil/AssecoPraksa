@@ -21,6 +21,61 @@ namespace AssecoPraksa.Database.Repositories
             return await _dbContext.Transactions.FirstOrDefaultAsync(x => x.Id.Equals(transactionId));
         }
 
+        private TransactionKind GetTransactionKind(string transactionKind)
+        {
+            TransactionKind helperTransactionKind;
+            switch (transactionKind)
+            {
+                case "dep":
+                    helperTransactionKind = TransactionKind.dep;
+                    break;
+                case "wdw":
+                    helperTransactionKind = TransactionKind.wdw;
+                    break;
+                case "pmt":
+                    helperTransactionKind = TransactionKind.pmt;
+                    break;
+                case "fee":
+                    helperTransactionKind = TransactionKind.fee;
+                    break;
+                case "inc":
+                    helperTransactionKind = TransactionKind.inc;
+                    break;
+                case "rev":
+                    helperTransactionKind = TransactionKind.rev;
+                    break;
+                case "adj":
+                    helperTransactionKind = TransactionKind.adj;
+                    break;
+                case "lnd":
+                    helperTransactionKind = TransactionKind.lnd;
+                    break;
+                case "lnr":
+                    helperTransactionKind = TransactionKind.lnr;
+                    break;
+                case "fcx":
+                    helperTransactionKind = TransactionKind.fcx;
+                    break;
+                case "aop":
+                    helperTransactionKind = TransactionKind.aop;
+                    break;
+                case "acl":
+                    helperTransactionKind = TransactionKind.acl;
+                    break;
+                case "spl":
+                    helperTransactionKind = TransactionKind.spl;
+                    break;
+                case "sal":
+                    helperTransactionKind = TransactionKind.sal;
+                    break;
+                default:
+                    helperTransactionKind = TransactionKind.dep;
+                    break;
+            }
+
+            return helperTransactionKind;
+        }
+
         public async Task<TransactionPagedList<TransactionEntity>> GetTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? startDate, DateTime? endDate, string? transactionKind)
         {
             var query = _dbContext.Transactions.AsQueryable();
@@ -30,56 +85,18 @@ namespace AssecoPraksa.Database.Repositories
             // filter query by transaction Kind
             if (!string.IsNullOrEmpty(transactionKind))
             {
-                TransactionKind helperTransactionKind;
-                switch(transactionKind)
+                // all transaction kinds are valid
+                string[] kinds = transactionKind.Split(',');
+                List<TransactionKind> filterKinds = new List<TransactionKind>();
+                foreach (string kind in kinds)
                 {
-                    case "dep":
-                        helperTransactionKind = TransactionKind.dep;
-                        break;
-                    case "wdw":
-                        helperTransactionKind = TransactionKind.wdw;
-                        break;
-                    case "pmt":
-                        helperTransactionKind = TransactionKind.pmt;
-                        break;
-                    case "fee":
-                        helperTransactionKind = TransactionKind.fee;
-                        break;
-                    case "inc":
-                        helperTransactionKind = TransactionKind.inc;
-                        break;
-                    case "rev":
-                        helperTransactionKind = TransactionKind.rev;
-                        break;
-                    case "adj":
-                        helperTransactionKind = TransactionKind.adj;
-                        break;
-                    case "lnd":
-                        helperTransactionKind = TransactionKind.lnd;
-                        break;
-                    case "lnr":
-                        helperTransactionKind = TransactionKind.lnr;
-                        break;
-                    case "fcx":
-                        helperTransactionKind = TransactionKind.fcx;
-                        break;
-                    case "aop":
-                        helperTransactionKind = TransactionKind.aop;
-                        break;
-                    case "acl":
-                        helperTransactionKind = TransactionKind.acl;
-                        break;
-                    case "spl":
-                        helperTransactionKind = TransactionKind.spl;
-                        break;
-                    case "sal":
-                        helperTransactionKind = TransactionKind.sal;
-                        break;
-                    default:
-                        helperTransactionKind = TransactionKind.dep;
-                        break;
+                    TransactionKind helperTransactionKind = GetTransactionKind(kind);
+                    filterKinds.Add(helperTransactionKind);
+                    
                 }
-                query = query.Where(transaction => transaction.TransactionKind == helperTransactionKind);
+                Console.WriteLine(filterKinds);
+                
+                query = query.Where(transaction => filterKinds.Contains(transaction.TransactionKind));
             }
 
             // filter query by date
