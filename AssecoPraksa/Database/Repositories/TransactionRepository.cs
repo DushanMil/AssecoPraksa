@@ -165,6 +165,15 @@ namespace AssecoPraksa.Database.Repositories
             };
         }
 
+        public async Task<List<TransactionEntity>> getAllTransactionsWithouthCatcodeAsync()
+        {
+            var query = _dbContext.Transactions.AsQueryable();
+
+            query = query.Where(transaction => string.IsNullOrEmpty(transaction.Catcode));
+
+            return await query.ToListAsync();
+        }
+
         private async Task<List<int>> GetSplittedTransactionIds()
         {
             var querySplitted = _dbContext.TransactionSplits.AsQueryable();
@@ -183,6 +192,7 @@ namespace AssecoPraksa.Database.Repositories
 
             return splittedTransactionsIds;
         }
+
 
         public async Task<SpendingsByCategory> GetSpendingsByCategory(string? catcode = null, DateTime? startDate = null, DateTime? endDate = null, Direction? direction = null)
         {

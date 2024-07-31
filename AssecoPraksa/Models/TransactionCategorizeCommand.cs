@@ -8,5 +8,10 @@ namespace AssecoPraksa.Models
     {
         [Required]
         public string Catcode { get; set; }
+
+        public TransactionCategorizeCommand(string catcode)
+        {
+            Catcode = catcode;
+        }
     }
 }

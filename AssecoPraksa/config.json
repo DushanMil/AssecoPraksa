@@ -1,0 +1,97 @@
+﻿[
+    {
+        "title": "Food delivery",
+        "catcode": "39",
+        "predicate": "mcc = 5811"
+    },
+    {
+        "title": "Groceries",
+        "catcode": "38",
+        "predicate": "mcc = 5499"
+    },
+    {
+        "title": "Parking",
+        "catcode": "5",
+        "predicate": "mcc = 7523"
+    },
+    {
+        "title": "Newspapers & Magazines",
+        "catcode": "23",
+        "predicate": "mcc = 5192"
+    },
+    {
+        "title": "Sports",
+        "catcode": "50",
+        "predicate": "mcc = 5655"
+    },
+    {
+        "title": "Pet Food & Supplies",
+        "catcode": "84",
+        "predicate": "mcc = 5995"
+    },
+    {
+        "title": "Tuition",
+        "catcode": "17",
+        "predicate": "mcc = 8299"
+    },
+    {
+        "title": "Groceries",
+        "catcode": "38",
+        "predicate": "mcc = 5200"
+    },
+    {
+        "title": "Rental Car & Taxi",
+        "catcode": "105",
+        "predicate": "mcc = 7519"
+    },
+    {
+        "title": "Electronics & Software",
+        "catcode": "90",
+        "predicate": "mcc = 5045"
+    },
+    {
+        "title": "Spa & Massage",
+        "catcode": "82",
+        "predicate": "mcc = 8050"
+    },
+    {
+        "title": "Doctor",
+        "catcode": "45",
+        "predicate": "mcc = 8011"
+    },
+    {
+        "title": "Pharmacy",
+        "catcode": "49",
+        "predicate": "mcc = 5912"
+    },
+    {
+        "title": "Bank Fee",
+        "catcode": "26",
+        "predicate": "mcc = 7394"
+    },
+    {
+        "title": "Gas & Fuel",
+        "catcode": "4",
+        "predicate": "mcc = 5983"
+    },
+    {
+        "title": "Hair",
+        "catcode": "80",
+        "predicate": "mcc = 7230"
+    },
+    {
+        "title": "Life Insurance",
+        "catcode": "33",
+        "predicate": "mcc = 6300"
+    },
+    {
+        "title": "Music",
+        "catcode": "22",
+        "predicate": "mcc = 5733"
+    },
+    {
+        "title": "Property Tax",
+        "catcode": "96",
+        "predicate": "mcc = 9311"
+    }
+]

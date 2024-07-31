@@ -35,27 +35,6 @@ namespace AssecoPraksa.Services
             _transactionSplitRepository = transactionSplitRepository;
         }
 
-        private void updateSpendings(SpendingsByCategory spendings, string? catcode, double amount)
-        {
-            foreach (var spending in spendings.Groups)
-            {
-                // if both are null
-                if (catcode == null && spending.Catcode == null)
-                {
-                    spending.Amount += amount;
-                    spending.Number += 1;
-                    continue;
-                }
-
-                if (spending.Catcode == catcode)
-                {
-                    spending.Amount += amount;
-                    spending.Number += 1;
-                }
-            }
-        }
-
-
         public async Task<SpendingsByCategory?> GetSpendingsByCategory(string? catcode = null, DateTime? start = null, DateTime? end = null, Direction? direction = null)
         {
             if (!string.IsNullOrEmpty(catcode))
@@ -85,63 +64,6 @@ namespace AssecoPraksa.Services
 
                 return spendings;
             }
-
-
-            /*
-             * this doesn't work.
-            // check if transaction code is a valid code, only if catcode in not null or ""
-            if (!string.IsNullOrEmpty(catcode))
-            {
-                var category = await _categoryRepository.GetCategoryByCode(catcode);
-                if (category == null)
-                {
-                    return null;
-                }
-            }
-
-            // get all categories with requested parent category
-            // if catcode is null or "" this method returns root categories
-            var categories = await _categoryRepository.GetCategories(catcode);
-
-            if (categories == null)
-            {
-                // catcode parameter was not a root category
-                // fix this
-                return null;
-            }
-
-            // create the return object SpendingsByCategory
-            SpendingsByCategory spendings = new SpendingsByCategory();
-
-            foreach (var category in categories.Items)
-            {
-                spendings.Groups.Add(new SpendingInCategory(category.Code, 0, 0));
-            }
-
-            spendings.Groups.Add(new SpendingInCategory(catcode, 0, 0));
-
-            // get all transactions from a date interval
-            var transactions = await _repository.GetTransactionsForSpendingsByCategory();
-             
-            foreach(var transaction in transactions)
-            {
-                // get all transaction splits
-                var splits = await _transactionSplitRepository.GetTransactionSplits(transaction.Id);
-                if (splits.Count() > 0)
-                {
-                    foreach(var split in splits)
-                    {
-                        updateSpendings(spendings, split.Catcode, split.Amount);
-                    }
-                }
-                else
-                {
-                    updateSpendings(spendings, transaction.Catcode, transaction.Amount);
-                }
-            }
-            
-            return spendings;
-            */
         }
 
         public async Task<TransactionPagedList<TransactionWithSplits>> getTransactionsAsync(int page, int pageSize, SortOrder sortOrder, string? sortBy, DateTime? start = null, DateTime? end = null, string? transactionKind = null)
@@ -158,6 +80,13 @@ namespace AssecoPraksa.Services
             }
 
             return transactionsWithSplits;
+        }
+
+        public async Task<List<TransactionWithSplits>> getAllTransactionsWithouthCatcodeAsync()
+
+        {
+            var transactions = await _repository.getAllTransactionsWithouthCatcodeAsync();
+            return _mapper.Map<List<TransactionWithSplits>>(transactions);
         }
 
         public async Task<bool> importTransactionsFromCSV(IFormFile csvFile)
@@ -327,5 +256,7 @@ namespace AssecoPraksa.Services
 
             return 0;
         }
+
+
     }
 }
