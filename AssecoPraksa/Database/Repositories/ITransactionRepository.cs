@@ -16,5 +16,7 @@ namespace AssecoPraksa.Database.Repositories
         public Task<TransactionEntity> SetTransactionCategory(TransactionEntity transaction, string catcode);
 
         public Task<SpendingsByCategory> GetSpendingsByCategory(string? catcode = null, DateTime? startDate = null, DateTime? endDate = null, Direction? direction = null);
+
+        public Task<bool> RunQueryForAutoCategorization(string query, string catcode);
     }
 }

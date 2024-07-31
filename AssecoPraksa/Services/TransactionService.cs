@@ -257,6 +257,24 @@ namespace AssecoPraksa.Services
             return 0;
         }
 
+        public async Task<bool> AutoCategorizeTransactions(List<AutoCategorizeCommand>? commands)
+        {
+            if (commands == null)
+            {
+                return false;
+            }
+
+            foreach(var item in commands)
+            {
+                Console.WriteLine(item.Predicate + item.Catcode);
+                if (item.Predicate != null && !string.IsNullOrEmpty(item.Catcode))
+                {
+                    await _repository.RunQueryForAutoCategorization(item.Predicate, item.Catcode);
+                }
+            }
+
+            return true;
+        }
 
     }
 }

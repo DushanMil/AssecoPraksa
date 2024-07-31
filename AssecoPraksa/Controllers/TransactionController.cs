@@ -3,7 +3,6 @@ using AssecoPraksa.Models;
 using AssecoPraksa.Services;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Cryptography;
 
 namespace AssecoPraksa.Controllers
 {
@@ -150,82 +149,10 @@ namespace AssecoPraksa.Controllers
 
             // go over transactions which don't have a catcode
             // if a rule is met set a category code
-            var transactions = await _transactionService.getAllTransactionsWithouthCatcodeAsync();
 
-            foreach (var transaction in transactions)
-            {
-                foreach (var command in commands)
-                {
-                    // go over commands and execute them
+            // treba da se posalje sql u bazu i da se izvrsi upit
 
-                    // command predicate is in the format: column operation literal
-                    string[] predicateWords = command.Predicate.Split(' ');
-
-                    // switch by colums
-                    switch (predicateWords[0])
-                    {
-                        case "id":
-                            break;
-                        case "beneficiary-name":
-                            break;
-                        case "date":
-                            break;
-                        case "direction":
-                            break;
-                        case "amount":
-                            break;
-                        case "description":
-                            break;
-                        case "currency":
-                            break;
-                        case "mcc":
-                            if (string.IsNullOrEmpty(transaction.Mcc))
-                            {
-                                break;
-                            }
-
-                            int number;
-                            if (!int.TryParse(predicateWords[2], out number))
-                            {
-                                return BadRequest("Literal is not a number for arithmetic operation");
-                            }
-
-                            switch(predicateWords[1])
-                            {
-                                case "<":
-                                    if (int.Parse(transaction.Mcc) < number)
-                                    {
-                                        transaction.Catcode = command.Catcode;
-                                        await _transactionService.CategorizeTransactionAsync(int.Parse(transaction.Id), new TransactionCategorizeCommand(command.Catcode));
-                                    }
-                                    break;
-                                case ">":
-                                    if (int.Parse(transaction.Mcc) > number)
-                                    {
-                                        transaction.Catcode = command.Catcode;
-                                        await _transactionService.CategorizeTransactionAsync(int.Parse(transaction.Id), new TransactionCategorizeCommand(command.Catcode));
-                                    }
-                                    break;
-                                case "=":
-                                    if (int.Parse(transaction.Mcc) == number)
-                                    {
-                                        transaction.Catcode = command.Catcode;
-                                        await _transactionService.CategorizeTransactionAsync(int.Parse(transaction.Id), new TransactionCategorizeCommand(command.Catcode));
-                                    }
-                                    break;
-                                default:
-                                    return BadRequest("Invalid operation!");
-                            }
-                            break;
-                        case "transaction-kind":
-                            break;
-                        default:
-                            return BadRequest("Invalid column name!");
-                    }
-
-
-                }
-            }
+            var response = _transactionService.AutoCategorizeTransactions(commands);
 
             return Ok();
         }

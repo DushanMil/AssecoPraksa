@@ -2,10 +2,7 @@
 using AssecoPraksa.Models;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.Intrinsics.Arm;
 using static AssecoPraksa.Models.SpendingsByCategory;
-using Microsoft.AspNetCore.Mvc.RazorPages;
-using System.Globalization;
 
 namespace AssecoPraksa.Database.Repositories
 {
@@ -336,6 +333,17 @@ namespace AssecoPraksa.Database.Repositories
             await _dbContext.SaveChangesAsync();
 
             return transaction;
+        }
+
+
+        public async Task<bool> RunQueryForAutoCategorization(string queryString, string catcode)
+        {
+            
+            var databaseQueryString = "update transactions set \"Catcode\" = '" + catcode + "' where \"Catcode\" is null and " + queryString;
+        
+            object value = _dbContext.Database.ExecuteSqlRaw(databaseQueryString);
+
+            return true;
         }
     }
 }
