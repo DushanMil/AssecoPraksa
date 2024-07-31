@@ -55,7 +55,7 @@ namespace AssecoPraksa.Controllers
             {
                 // ovo je jedini moguci problem
                 // zato ovde moze da se vrati odmah
-                problem.Errors.Add(new ValidationProblem.ProblemDetails("m", "Category code doesn't exist", "Code " + parentId + " doesn't exist"));
+                problem.Errors.Add(new ValidationProblem.ProblemDetails("provided-category-does-not-exists", "Category code doesn't exist", "Code " + parentId + " doesn't exist"));
                 return BadRequest(problem);
             }
 

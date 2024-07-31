@@ -54,11 +54,15 @@ namespace AssecoPraksa.Controllers
             }
 
             // check if catcode is a valid code
-            var category = await _categoryService.GetCategoryByCode(catcode);
-            if (category == null)
+            if (!string.IsNullOrEmpty(catcode))
             {
-                problem.Errors.Add(new ValidationProblem.ProblemDetails("catcode", "provided-category-does-not-exists", "Category code " + catcode + " does not exist"));
+                var category = await _categoryService.GetCategoryByCode(catcode);
+                if (category == null)
+                {
+                    problem.Errors.Add(new ValidationProblem.ProblemDetails("catcode", "provided-category-does-not-exists", "Category code " + catcode + " does not exist"));
+                }
             }
+            
 
             if (problem.Errors.Count > 0)
             {

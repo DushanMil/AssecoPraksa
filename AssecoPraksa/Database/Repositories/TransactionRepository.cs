@@ -321,8 +321,15 @@ namespace AssecoPraksa.Database.Repositories
         // dodavanje instrukcija
         public async Task<TransactionEntity> CreateTransaction(TransactionEntity newTransactionEntity)
         {
-            _dbContext.Transactions.Add(newTransactionEntity);
-            await _dbContext.SaveChangesAsync();
+            var exists = await GetTransactionById(newTransactionEntity.Id);
+            if (exists == null)
+            {
+                // no duplicate primary keys
+                _dbContext.Transactions.Add(newTransactionEntity);
+                await _dbContext.SaveChangesAsync();
+            }
+
+            
 
             return newTransactionEntity;
         }

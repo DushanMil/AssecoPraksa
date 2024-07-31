@@ -153,15 +153,17 @@ namespace AssecoPraksa.Services
                             if (valid)
                             {
                                 var newRecordEntity = _mapper.Map<TransactionEntity>(record);
+
+
                                 try
                                 {
                                     await _repository.CreateTransaction(newRecordEntity);
                                 }
-                                catch (InvalidOperationException e)
+                                catch (InvalidOperationException)
                                 {
                                     _logger.LogInformation("ERROR Transaction already exists: Transaction with ID = " + record.Id + " and beneficiary-name = " + record.BeneficiaryName);
                                 }
-                                catch (DbUpdateException e)
+                                catch (DbUpdateException)
                                 {
                                     _logger.LogInformation("DB Error: Transaction with ID = " + record.Id + " and beneficiary-name = " + record.BeneficiaryName);
                                 }
@@ -179,7 +181,7 @@ namespace AssecoPraksa.Services
                 }
 
             }
-            catch (HeaderValidationException ex)
+            catch (HeaderValidationException)
             {
                 _logger.LogError("ERROR: Wrong format of CSV header file!");
                 return false;

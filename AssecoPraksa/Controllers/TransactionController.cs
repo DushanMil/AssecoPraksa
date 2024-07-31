@@ -140,12 +140,17 @@ namespace AssecoPraksa.Controllers
             //  predicate: - pod kojim uslovom
             string jsonString = System.IO.File.ReadAllText("config.json");
 
-            var commands = JsonConvert.DeserializeObject<List<AutoCategorizeCommand>>(jsonString);
+            List<AutoCategorizeCommand>? commands;
+            try
+            {
+                commands = JsonConvert.DeserializeObject<List<AutoCategorizeCommand>>(jsonString);
 
-            if (commands == null)
+            }
+            catch(Newtonsoft.Json.JsonReaderException)
             {
                 return BadRequest("Json file is empty or has no rules");
             }
+
 
             // go over transactions which don't have a catcode
             // if a rule is met set a category code
