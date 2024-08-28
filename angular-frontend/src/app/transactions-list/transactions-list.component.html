@@ -1,0 +1,85 @@
+<h3>Filters</h3>
+<table>
+    <tr>
+        <td>Transaction kinds:</td>
+        <td>
+            <select [(ngModel)]="kinds">
+                <option value="dep">dep</option>
+                <option value="wdw">wdw</option>
+                <option value="pmt">pmt</option>
+                <option value="fee">fee</option>
+                <option value="inc">inc</option>
+                <option value="rev">rev</option>
+                <option value="adj">adj</option>
+                <option value="lnd">lnd</option>
+                <option value="lnr">lnr</option>
+                <option value="fcx">fcx</option>
+                <option value="aop">aop</option>
+                <option value="acl">acl</option>
+                <option value="spl">spl</option>
+                <option value="sal">sal</option>
+              </select>
+        </td>
+    </tr>
+    <tr>
+        <td>Start date:</td>
+        <td><input type="datetime-local" [(ngModel)]="startDate"/></td>
+    </tr>
+    <tr>
+        <td>End date:</td>
+        <td><input type="datetime-local" [(ngModel)]="endDate"></td>
+    </tr>
+    <tr>
+        <td>Page:</td>
+        <td><input type="number" [(ngModel)]="page"></td>
+    </tr>
+    <tr>
+        <td>Page size:</td>
+        <td><input type="number" [(ngModel)]="pageSize"></td>
+    </tr>
+    <tr>
+        <td>Sort by:</td>
+        <td><input type="text" [(ngModel)]="sortBy"></td>
+    </tr>
+    <tr>
+        <td>Sort order:</td>
+        <td>
+            <select [(ngModel)]="sortOrder">
+                <option value="asc">Asc</option>
+                <option value="desc">Desc</option>
+              </select>
+        </td>
+    </tr>
+  </table>
+<br/>
+<button (click)="filterTransactions()">Filter</button>
+<br/>
+
+
+<h3>User transactions</h3>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <th>Beneficiary name</th>
+        <th>Date</th>
+        <th>Direction</th>
+        <th>Amount</th>
+        <th>Currency</th>
+        <th>Kind</th>
+        <th>Catcode</th>
+        <th>IsSplitted</th>
+        <th>Categorize</th>
+    </tr>
+    <tr *ngFor="let t of transactionPagedList.items">
+        <td>{{t.id}}</td>
+        <td>{{t['beneficiary-name']}}</td>
+        <td>{{t.date}}</td>
+        <td>{{t.direction}}</td>
+        <td>{{t.amount}}</td>
+        <td>{{t.currency}}</td>
+        <td>{{t['transaction-kind']}}</td>
+        <td>{{t.catcode}}</td>
+        <td>{{t.splits.length == 0 ? "not splitted" : "splitted"}}</td>
+        <td><button (click)="categorize(t)">Categorize</button></td>
+    </tr>
+</table>

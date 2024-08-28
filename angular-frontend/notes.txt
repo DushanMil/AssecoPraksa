@@ -1,0 +1,6 @@
+Koriscena verzija Angular 16.2.2
+
+src folder se samo kopira umesto src foldera osnovnog angular projekta
+kreiranog pomocu ng new pfm_frontend
+
+Nisu koriscene nikakve angular biblioteke

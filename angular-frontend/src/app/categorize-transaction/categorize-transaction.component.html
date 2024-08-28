@@ -1,0 +1,49 @@
+<h3>Selected transaction</h3>
+<table border="1">
+    <tr>
+        <th>Id</th>
+        <th>Beneficiary name</th>
+        <th>Date</th>
+        <th>Direction</th>
+        <th>Amount</th>
+        <th>Currency</th>
+        <th>Kind</th>
+        <th>Catcode</th>
+        <th>IsSplitted</th>
+    </tr>
+    <tr>
+        <td>{{t.id}}</td>
+        <td>{{t['beneficiary-name']}}</td>
+        <td>{{t.date}}</td>
+        <td>{{t.direction}}</td>
+        <td>{{t.amount}}</td>
+        <td>{{t.currency}}</td>
+        <td>{{t['transaction-kind']}}</td>
+        <td>{{t.catcode}}</td>
+        <td>{{t.splits.length == 0 ? "not splitted" : "splitted"}}</td>
+    </tr>
+</table>
+
+<p>Select a top level category</p>
+<br/>
+<select [(ngModel)]="selectedCategory" (change)="selectedTopLevel()" >
+    <option *ngFor="let category of topLevelCategrories.items" [value]="category.code">
+      {{ category.name }}
+    </option>
+  </select>
+
+<p>Select a low level category</p>
+<br/>
+<select [(ngModel)]="selectedSubCategory" (change)="selectedLowLevel()">
+    <option *ngFor="let category of lowLevelCategories.items" [value]="category.code">
+      {{ category.name }}
+    </option>
+  </select>
+
+<br/>
+<button (click)="applyCategory()">Apply</button>
+<br/>
+<hr/>
+<br/>
+<button (click)="returnToStart()">To starting page</button>
+
