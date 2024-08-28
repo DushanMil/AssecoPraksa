@@ -8,9 +8,17 @@ Note that besides spending categories, categories enum includes values for uncat
 
 ![image](https://user-images.githubusercontent.com/11427016/140492547-adef28d7-b88f-42f8-8087-c0a80f6e62e0.png)
 
+In this project I implemented the PFM Backend part of the application. The PFM Backend is a microservice written in .Net that implements a Web API that enables application functionalities such as transactions import, getting transactions, import of categories, and so on. The microservice is connected to a PostgreSQL database which stores all the transactions and categories data in a relational database.
+
+All the implemented functionalities are listed below.
+
+The API specification is in a separate file which can be viewed in edditor.swager.io.
+
+
 PFM Backend
 ====================================
-PFM microservice written in .Net core
+PFM microservice written in .Net core using Entity Framework package for Data manipulation.
+For the database a PostgreSQL relational database was used. The database server was running in a docker container. 
 
 Basic Features
 --------------
