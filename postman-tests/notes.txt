@@ -1,0 +1,11 @@
+Command to create a html report:
+
+newman run '.\PFM app tests.postman_collection.json' -e '.\PFM app test environment.postman_environment.json' -r htmlextra --reporter-htmlextra-title "API Test Report"
+
+collection and environment need to be exportex from potman with ... export.
+
+'.\PFM app tests.postman_collection.json', '.\PFM app test environment.postman_environment.json'
+These files were edited because they don't contain paths to the transactions.csv and categories.csv.
+Paths were copied manually. Paths need to be with double \\.
+
+ 

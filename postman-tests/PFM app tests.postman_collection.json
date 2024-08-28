@@ -1,0 +1,2337 @@
+{
+	"info": {
+		"_postman_id": "d46c700d-a804-4291-aaa4-61d133c35fa6",
+		"name": "PFM app tests",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "37310092"
+	},
+	"item": [
+		{
+			"name": "Get transactions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"console.log(pm.environment.get('singleCategorySplitSchema'))\r",
+							"const singleCategorySplitSchema = JSON.parse(pm.environment.get('singleCategorySplitSchema'));\r",
+							"\r",
+							"const transactionWithSplitsSchema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"id\": { \"type\": \"string\" },\r",
+							"        \"beneficiary-name\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"date\": { \"type\": \"string\" },\r",
+							"        \"direction\": { \"type\": \"string\" },\r",
+							"        \"amount\": { \"type\": \"number\" },\r",
+							"        \"description\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"currency\": { \"type\": \"string\" },\r",
+							"        \"mcc\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"transaction-kind\": { \"type\": \"string\" },\r",
+							"        \"catcode\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"splits\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"items\": singleCategorySplitSchema\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"id\", \"date\", \"direction\", \"amount\", \"currency\", \"transaction-kind\"]\r",
+							"}\r",
+							"\r",
+							"const transactionPagedListSchema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"total-count\": { \"type\": \"number\" },\r",
+							"        \"page-size\": { \"type\": \"number\" },\r",
+							"        \"page\": { \"type\": \"number\" },\r",
+							"        \"total-pages\": { \"type\": \"number\" },\r",
+							"        \"sort-order\": { \"type\": \"string\" },\r",
+							"        \"sort-by\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"items\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : transactionWithSplitsSchema\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"items\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 200 and response schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(transactionPagedListSchema)\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transactions",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "start-date",
+							"value": "1/2/2021",
+							"disabled": true
+						},
+						{
+							"key": "end-date",
+							"value": "1/4/2021",
+							"disabled": true
+						},
+						{
+							"key": "transaction-kind",
+							"value": "pmt",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "page-size",
+							"value": "10",
+							"disabled": true
+						},
+						{
+							"key": "sort-by",
+							"value": "amount",
+							"disabled": true
+						},
+						{
+							"key": "sort-order",
+							"value": "asc",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get transactions-Bad date format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem);\r",
+							"    pm.expect(pm.response.text()).to.include(\"invalid-format\");\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transactions?start-date=srtae&end-date=seggt",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "start-date",
+							"value": "srtae"
+						},
+						{
+							"key": "end-date",
+							"value": "seggt"
+						},
+						{
+							"key": "transaction-kind",
+							"value": "pmt",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "page-size",
+							"value": "10",
+							"disabled": true
+						},
+						{
+							"key": "sort-by",
+							"value": "amount",
+							"disabled": true
+						},
+						{
+							"key": "sort-order",
+							"value": "asc",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get transactions-Invalid kind",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem)\r",
+							"    pm.expect(pm.response.text()).to.include(\"unknown-enum\");\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transactions?transaction-kind=srthrtst",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "start-date",
+							"value": "srtae",
+							"disabled": true
+						},
+						{
+							"key": "end-date",
+							"value": "seggt",
+							"disabled": true
+						},
+						{
+							"key": "transaction-kind",
+							"value": "srthrtst"
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "page-size",
+							"value": "10",
+							"disabled": true
+						},
+						{
+							"key": "sort-by",
+							"value": "amount",
+							"disabled": true
+						},
+						{
+							"key": "sort-order",
+							"value": "asc",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get transactions-Page size limit",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem)\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transactions?page-size=10000",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "start-date",
+							"value": "srtae",
+							"disabled": true
+						},
+						{
+							"key": "end-date",
+							"value": "seggt",
+							"disabled": true
+						},
+						{
+							"key": "transaction-kind",
+							"value": "srthrtst",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "page-size",
+							"value": "10000"
+						},
+						{
+							"key": "sort-by",
+							"value": "amount",
+							"disabled": true
+						},
+						{
+							"key": "sort-order",
+							"value": "asc",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get transactions-Invalid sort order",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const invalidParameter = JSON.parse(pm.environment.get('invalidParameter'));\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(invalidParameter)\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transactions?sort-order=srthdr",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions"
+					],
+					"query": [
+						{
+							"key": "start-date",
+							"value": "srtae",
+							"disabled": true
+						},
+						{
+							"key": "end-date",
+							"value": "seggt",
+							"disabled": true
+						},
+						{
+							"key": "transaction-kind",
+							"value": "srthrtst",
+							"disabled": true
+						},
+						{
+							"key": "page",
+							"value": "1",
+							"disabled": true
+						},
+						{
+							"key": "page-size",
+							"value": "10000",
+							"disabled": true
+						},
+						{
+							"key": "sort-by",
+							"value": "amount",
+							"disabled": true
+						},
+						{
+							"key": "sort-order",
+							"value": "srthdr"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import transactions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Verify status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csvFile",
+							"type": "file",
+							"src": "C:\\Users\\Dusan-PC\\Desktop\\aseco praksa\\projekat\\pfm\\transactions.csv"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/transactions/import",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions",
+						"import"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import transactions-No file sent",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Verify status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{url}}/transactions/import",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions",
+						"import"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import transactions-Invalid csv file format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Verify status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csvFile",
+							"type": "file",
+							"src": "postman-cloud:///1ef4f6b0-fee5-4fb0-a0e7-f7c8486fec62"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/transactions/import",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transactions",
+						"import"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Split Transaction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Verify status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"const singleCategorySplitSchema = JSON.parse(pm.environment.get('singleCategorySplitSchema'));\r",
+							"\r",
+							"const splitTransactionCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"splits\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"items\": singleCategorySplitSchema\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"splits\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(splitTransactionCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"splits\": [\r\n    {\r\n      \"catcode\": \"A\",\r\n      \"amount\": 20\r\n    },\r\n    {\r\n      \"catcode\": \"B\",\r\n      \"amount\": 40\r\n    },\r\n    {\r\n      \"catcode\": \"3\",\r\n      \"amount\": 100\r\n    },\r\n    {\r\n      \"catcode\": \"17\",\r\n      \"amount\": 27.2\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487/split",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487",
+						"split"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Split Transaction-Path parameter not integer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response is validation problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem)\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"const singleCategorySplitSchema = JSON.parse(pm.environment.get('singleCategorySplitSchema'));\r",
+							"\r",
+							"const splitTransactionCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"splits\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"items\": singleCategorySplitSchema\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"splits\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(splitTransactionCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"splits\": [\r\n    {\r\n      \"catcode\": \"A\",\r\n      \"amount\": 20\r\n    },\r\n    {\r\n      \"catcode\": \"B\",\r\n      \"amount\": 40\r\n    },\r\n    {\r\n      \"catcode\": \"3\",\r\n      \"amount\": 100\r\n    },\r\n    {\r\n      \"catcode\": \"17\",\r\n      \"amount\": 27.2\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487a/split",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487a",
+						"split"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Split Transaction-Category code is not valid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Verify status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"const singleCategorySplitSchema = JSON.parse(pm.environment.get('singleCategorySplitSchema'));\r",
+							"\r",
+							"const splitTransactionCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"splits\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"items\": singleCategorySplitSchema\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"splits\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(splitTransactionCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format is false\", function () {\r",
+							"    pm.expect(valid).to.be.false;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"splits\": [\r\n    {\r\n      \"catcode\": \"A\",\r\n      \"amount\": 20\r\n    },\r\n    {\r\n      \"catcode\": \"B\",\r\n      \"amount\": 40\r\n    },\r\n    {\r\n      \"catcode\": 3,\r\n      \"amount\": 100\r\n    },\r\n    {\r\n      \"catcode\": 17,\r\n      \"amount\": 27.2\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487/split",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487",
+						"split"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Split Transaction-Category code doesn't exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const businessProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"problem\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"message\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"details\": { \"type\": [\"string\", \"null\"] },\r",
+							"    },\r",
+							"    \"required\": [\"problem\", \"message\", \"details\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 440 and response is business problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(businessProblem)\r",
+							"    pm.expect(pm.response.text()).to.include(\"provided-category-does-not-exists\");\r",
+							"    pm.response.to.have.status(440);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"const singleCategorySplitSchema = JSON.parse(pm.environment.get('singleCategorySplitSchema'));\r",
+							"\r",
+							"const splitTransactionCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"splits\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"items\": singleCategorySplitSchema\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"splits\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(splitTransactionCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"splits\": [\r\n    {\r\n      \"catcode\": \"107\",\r\n      \"amount\": 20\r\n    },\r\n    {\r\n      \"catcode\": \"B\",\r\n      \"amount\": 40\r\n    },\r\n    {\r\n      \"catcode\": \"3\",\r\n      \"amount\": 100\r\n    },\r\n    {\r\n      \"catcode\": \"17\",\r\n      \"amount\": 27.2\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487/split",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487",
+						"split"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Split Transaction-Transaction doesn't exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const businessProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"problem\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"message\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"details\": { \"type\": [\"string\", \"null\"] },\r",
+							"    },\r",
+							"    \"required\": [\"problem\", \"message\", \"details\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 440 and response is business problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(businessProblem)\r",
+							"    pm.expect(pm.response.text()).to.include(\"transaction-does-not-exists\");\r",
+							"    pm.response.to.have.status(440);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"const singleCategorySplitSchema = JSON.parse(pm.environment.get('singleCategorySplitSchema'));\r",
+							"\r",
+							"const splitTransactionCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"splits\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"items\": singleCategorySplitSchema\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"splits\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(splitTransactionCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"splits\": [\r\n    {\r\n      \"catcode\": \"A\",\r\n      \"amount\": 20\r\n    },\r\n    {\r\n      \"catcode\": \"B\",\r\n      \"amount\": 40\r\n    },\r\n    {\r\n      \"catcode\": \"3\",\r\n      \"amount\": 100\r\n    },\r\n    {\r\n      \"catcode\": \"17\",\r\n      \"amount\": 27.2\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/100/split",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"100",
+						"split"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Split Transaction-Wrong split amounts",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const businessProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"problem\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"message\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"details\": { \"type\": [\"string\", \"null\"] },\r",
+							"    },\r",
+							"    \"required\": [\"problem\", \"message\", \"details\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 440 and response is business problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(businessProblem)\r",
+							"    pm.expect(pm.response.text()).to.include(\"split-amount-over-transaction-amount\");\r",
+							"    pm.response.to.have.status(440);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"const singleCategorySplitSchema = JSON.parse(pm.environment.get('singleCategorySplitSchema'));\r",
+							"\r",
+							"const splitTransactionCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"splits\": {\r",
+							"            \"type\": \"array\",\r",
+							"            \"items\": singleCategorySplitSchema\r",
+							"        }\r",
+							"    },\r",
+							"    \"required\": [\"splits\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(splitTransactionCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"splits\": [\r\n    {\r\n      \"catcode\": \"A\",\r\n      \"amount\": 20\r\n    },\r\n    {\r\n      \"catcode\": \"B\",\r\n      \"amount\": 40\r\n    },\r\n    {\r\n      \"catcode\": \"3\",\r\n      \"amount\": 100\r\n    },\r\n    {\r\n      \"catcode\": \"17\",\r\n      \"amount\": 27.5\r\n    }\r\n  ]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487/split",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487",
+						"split"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Categorize transaction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Verify status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"\r",
+							"const categorizeCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"catcode\": { \"type\": \"string\" }\r",
+							"    },\r",
+							"    \"required\": [\"catcode\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(categorizeCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"catcode\": \"A\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487/categorize",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487",
+						"categorize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Categorize transaction-Path parameter not integer",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response is validation problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem)\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"\r",
+							"const categorizeCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"catcode\": { \"type\": \"string\" }\r",
+							"    },\r",
+							"    \"required\": [\"catcode\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(categorizeCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"catcode\": \"A\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487a/categorize",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487a",
+						"categorize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Categorize transaction-Categorize command not valid",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Verify status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"\r",
+							"const categorizeCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"catcode\": { \"type\": \"string\" }\r",
+							"    },\r",
+							"    \"required\": [\"catcode\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(categorizeCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.false;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"catcode\": 123\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487/categorize",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487",
+						"categorize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Categorize transaction-Category code doesn't exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const businessProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"problem\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"message\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"details\": { \"type\": [\"string\", \"null\"] },\r",
+							"    },\r",
+							"    \"required\": [\"problem\", \"message\", \"details\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 440 and response is business problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(businessProblem)\r",
+							"    pm.expect(pm.response.text()).to.include(\"provided-category-does-not-exists\");\r",
+							"    pm.response.to.have.status(440);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"\r",
+							"const categorizeCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"catcode\": { \"type\": \"string\" }\r",
+							"    },\r",
+							"    \"required\": [\"catcode\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(categorizeCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"catcode\": \"107\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/66229487/categorize",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"66229487",
+						"categorize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Categorize transaction-Transaction Id doesn't exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const businessProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"problem\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"message\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"details\": { \"type\": [\"string\", \"null\"] },\r",
+							"    },\r",
+							"    \"required\": [\"problem\", \"message\", \"details\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 440 and response is business problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(businessProblem)\r",
+							"    pm.expect(pm.response.text()).to.include(\"transaction-does-not-exists\");\r",
+							"    pm.response.to.have.status(440);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const Ajv = require('ajv');\r",
+							"const ajv = new Ajv();\r",
+							"\r",
+							"\r",
+							"const categorizeCommand = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"catcode\": { \"type\": \"string\" }\r",
+							"    },\r",
+							"    \"required\": [\"catcode\"]\r",
+							"}\r",
+							"const requestBody = pm.request.body.raw ? JSON.parse(pm.request.body.raw) : {};\r",
+							"\r",
+							"const validate = ajv.compile(categorizeCommand);\r",
+							"const valid = validate(requestBody);\r",
+							"\r",
+							"pm.test(\"Verify request body format\", function () {\r",
+							"    pm.expect(valid).to.be.true;\r",
+							"    if (!valid) {\r",
+							"        console.log(validate.errors); // Log any validation errors\r",
+							"    }\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n  \"catcode\": \"107\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/transaction/100/categorize",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"100",
+						"categorize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Auto Categorize transactions",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Verify status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/transaction/auto-categorize",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"transaction",
+						"auto-categorize"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Verify status code is 200\", function () {\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csvFile",
+							"type": "file",
+							"src": "C:\\Users\\Dusan-PC\\Desktop\\aseco praksa\\projekat\\pfm\\categories.csv"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/categories/import",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"categories",
+						"import"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import categories-No file sent",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.test(\"Verify status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": []
+				},
+				"url": {
+					"raw": "{{url}}/categories/import",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"categories",
+						"import"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Import categories-Invalid csv file format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"\r",
+							"pm.test(\"Verify status code is 400\", function () {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "csvFile",
+							"type": "file",
+							"src": "postman-cloud:///1ef4f6b0-fee5-4fb0-a0e7-f7c8486fec62"
+						}
+					]
+				},
+				"url": {
+					"raw": "{{url}}/categories/import",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"categories",
+						"import"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get categories",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const categorySchema = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"code\": { \"type\": \"string\" },\r",
+							"        \"name\": { \"type\": \"string\" },\r",
+							"        \"parent-code\": { \"type\": [\"string\", \"null\"] },\r",
+							"    },\r",
+							"    \"required\": [\"code\", \"name\"]\r",
+							"}\r",
+							"\r",
+							"const categoryList = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"items\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : categorySchema\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"items\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 200 and response schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(categoryList)\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/categories",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"categories"
+					],
+					"query": [
+						{
+							"key": "parent-id",
+							"value": "B",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get categories-Invalid parent code",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem)\r",
+							"    \r",
+							"    pm.expect(pm.response.text()).to.include(\"provided-category-does-not-exists\");\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/categories?parent-id=W",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"categories"
+					],
+					"query": [
+						{
+							"key": "parent-id",
+							"value": "W"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get spending analytics",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"const spendingInCategory = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"catcode\": { \"type\": [\"string\", \"null\"] },\r",
+							"        \"amount\": { \"type\": [\"number\", \"null\"] },\r",
+							"        \"count\": { \"type\": [\"number\", \"null\"] },\r",
+							"    },\r",
+							"    \"required\": []\r",
+							"}\r",
+							"\r",
+							"const spendingByCategory = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"groups\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : spendingInCategory\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"groups\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 200 and response schema is valid\", function () {\r",
+							"    pm.response.to.have.jsonSchema(spendingByCategory)\r",
+							"    pm.response.to.have.status(200);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/spending-analytics?catcode=D",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"spending-analytics"
+					],
+					"query": [
+						{
+							"key": "catcode",
+							"value": "D"
+						},
+						{
+							"key": "start-date",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "end-date",
+							"value": null,
+							"disabled": true
+						},
+						{
+							"key": "direction",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get spending analytics-Bad date format",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem);\r",
+							"    pm.expect(pm.response.text()).to.include(\"invalid-format\");\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/spending-analytics?start-date=nliuh&end-date=bkibkhj",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"spending-analytics"
+					],
+					"query": [
+						{
+							"key": "catcode",
+							"value": "D",
+							"disabled": true
+						},
+						{
+							"key": "start-date",
+							"value": "nliuh"
+						},
+						{
+							"key": "end-date",
+							"value": "bkibkhj"
+						},
+						{
+							"key": "direction",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get spending analytics-Category code doesn't exists",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem);\r",
+							"    pm.expect(pm.response.text()).to.include(\"invalid-format\");\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/spending-analytics?start-date=nliuh&end-date=bkibkhj",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"spending-analytics"
+					],
+					"query": [
+						{
+							"key": "catcode",
+							"value": "D",
+							"disabled": true
+						},
+						{
+							"key": "start-date",
+							"value": "nliuh"
+						},
+						{
+							"key": "end-date",
+							"value": "bkibkhj"
+						},
+						{
+							"key": "direction",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get spending analytics-Invalid direction",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"const validationError = JSON.parse(pm.environment.get('validationError'));\r",
+							"\r",
+							"const validationProblem = {\r",
+							"    \"type\": \"object\",\r",
+							"    \"properties\": {\r",
+							"        \"errors\": {\r",
+							"             \"type\": \"array\",\r",
+							"             \"items\" : validationError\r",
+							"            }\r",
+							"    },\r",
+							"    \"required\": [\"errors\"]\r",
+							"}\r",
+							"\r",
+							"pm.test(\"Verify status code is 400 and response schema is validation-problem\", function () {\r",
+							"    pm.response.to.have.jsonSchema(validationProblem);\r",
+							"    pm.expect(pm.response.text()).to.include(\"invalid-format\");\r",
+							"    pm.response.to.have.status(400);\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				},
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/spending-analytics?start-date=nliuh&end-date=bkibkhj",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"spending-analytics"
+					],
+					"query": [
+						{
+							"key": "catcode",
+							"value": "D",
+							"disabled": true
+						},
+						{
+							"key": "start-date",
+							"value": "nliuh"
+						},
+						{
+							"key": "end-date",
+							"value": "bkibkhj"
+						},
+						{
+							"key": "direction",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "localhost:5078"
+		},
+		{
+			"key": "getTransactionsSchema",
+			"value": "{}",
+			"type": "string"
+		},
+		{
+			"key": "singleCategorySplitSchema",
+			"value": "{\n    \"type\": \"object\",\n    \"properties\": {\n        \"catcode\": { \"type\": \"string\" },\n        \"amount\": { \"type\": \"number\" }\n    },\n    required: ['catcode', 'amount']\n}",
+			"type": "string",
+			"disabled": true
+		}
+	]
+}
