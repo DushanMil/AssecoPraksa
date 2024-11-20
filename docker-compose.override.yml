@@ -1,0 +1,9 @@
+version: '3.4'
+
+services:
+  assecopraksa:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=5078
+    ports:
+      - 5078:5078

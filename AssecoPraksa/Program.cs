@@ -77,10 +77,10 @@ app.Run();
 // dohvataju se lokalni podaci iz properties/launchSettings.json
 string CreateConnectionString(IConfiguration configuration)
 {
-    var username = Environment.GetEnvironmentVariable("DATABASE_USERNAME");
-    var pass = Environment.GetEnvironmentVariable("DATABASE_PASSWORD");
-    var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "products";
-    var host = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "localhost";
+    var username = Environment.GetEnvironmentVariable("DATABASE_USERNAME") ?? "sa";
+    var pass = Environment.GetEnvironmentVariable("DATABASE_PASSWORD") ?? "Password123#";
+    var databaseName = Environment.GetEnvironmentVariable("DATABASE_NAME") ?? "transactions";
+    var host = Environment.GetEnvironmentVariable("DATABASE_HOST") ?? "transactions.database";
     var port = Environment.GetEnvironmentVariable("DATABASE_PORT") ?? "5432";
 
     var connBuilder = new NpgsqlConnectionStringBuilder
